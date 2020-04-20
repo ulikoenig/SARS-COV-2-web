@@ -1,22 +1,15 @@
 <?php
+
+declare(strict_types=1);
 header("Content-type: text/html; charset=utf-8\r\n");
 include_once("connect.php");
+include_once("bundesland.php");
+
 $dbInstance = ConnectDB::getInstance();
 $TABLE =  $dbInstance::TABLE;
 $link = $dbInstance->link;
 
-class Bundesland
-{
-	static function get($bundesland)
-	{
-		$bl = intval($bundesland);
-		if (($bl < 1) || ($bl > 16)) {
-			return  "IdLandkreis > 0";
-		} else {
-			return "IdLandkreis >= " . $bl . "000 AND IdLandkreis < " . ($bl + 1) . "000";
-		}
-	}
-}
+
 
 $landkreisSQL = "";
 if (isset($_GET['land'])) {
@@ -183,11 +176,11 @@ $nav = "<p><a href=\"?land=8\">Baden-Württemberg</a>&nbsp;&middot;&nbsp;
 
 	<div style="width: 100%">
 		<?php echo $nav; ?>
-		<canvas id="datum"></canvas>
-		<?php echo $nav; ?>
 		<canvas id="kreise"></canvas>
 		<?php echo $nav; ?>
 		<canvas id="kreiseProEinwohner"></canvas>
+		<?php echo $nav; ?>
+		<canvas id="datum"></canvas>
 	</div>
 	<script>
 		var barChartData = {
@@ -309,11 +302,29 @@ $nav = "<p><a href=\"?land=8\">Baden-Württemberg</a>&nbsp;&middot;&nbsp;
 				options: {
 					title: {
 						display: true,
-						text: 'SARS-CoV-2 infektionen in SH'
+						text: 'SARS-CoV-2 infektionen <?php echo Bundesland::getNameIn($_GET['land']); ?>'
 					},
 					tooltips: {
 						mode: 'index',
-						intersect: false
+						intersect: false,
+						callbacks: {
+							label: function(tooltipItem, data) {
+								var tooltipValue = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+								var tooltipLabel = data.datasets[tooltipItem.datasetIndex].label;
+								var tooltipResult = tooltipValue.toLocaleString() +": "+tooltipLabel;
+
+								// Loop through all datasets to get the actual total of the index
+								var total = 0;
+								for (var i = 0; i < data.datasets.length; i++)
+									total += data.datasets[i].data[tooltipItem.index];
+
+								if (tooltipItem.datasetIndex != data.datasets.length - 1) {
+									return tooltipResult;
+								} else { // .. else, you display the dataset and the total, using an array
+									return [tooltipResult, Math.round(total)+": Summe"];
+								}
+							}
+						}
 					},
 					responsive: true,
 					scales: {
@@ -338,11 +349,29 @@ $nav = "<p><a href=\"?land=8\">Baden-Württemberg</a>&nbsp;&middot;&nbsp;
 				options: {
 					title: {
 						display: true,
-						text: 'SARS-CoV-2 infektionen in SH YYY'
+						text: 'SARS-CoV-2 infektionen <?php echo Bundesland::getNameIn($_GET['land']); ?>'
 					},
 					tooltips: {
 						mode: 'index',
-						intersect: false
+						intersect: false,
+						callbacks: {
+							label: function(tooltipItem, data) {
+								var tooltipValue = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+								var tooltipLabel = data.datasets[tooltipItem.datasetIndex].label;
+								var tooltipResult = tooltipValue.toLocaleString() +": "+tooltipLabel;
+
+								// Loop through all datasets to get the actual total of the index
+								var total = 0;
+								for (var i = 0; i < data.datasets.length; i++)
+									total += data.datasets[i].data[tooltipItem.index];
+
+								if (tooltipItem.datasetIndex != data.datasets.length - 1) {
+									return tooltipResult;
+								} else { // .. else, you display the dataset and the total, using an array
+									return [tooltipResult, Math.round(total)+": Summe"];
+								}
+							}
+						}
 					},
 					responsive: true,
 					scales: {
@@ -358,7 +387,6 @@ $nav = "<p><a href=\"?land=8\">Baden-Württemberg</a>&nbsp;&middot;&nbsp;
 
 
 			/* Grafik 3*/
-
 			var cty = document.getElementById('kreiseProEinwohner').getContext('2d');
 			window.myBar = new Chart(cty, {
 				type: 'bar',
@@ -366,8 +394,7 @@ $nav = "<p><a href=\"?land=8\">Baden-Württemberg</a>&nbsp;&middot;&nbsp;
 				options: {
 					title: {
 						display: true,
-						text: 'SARS-CoV-2 infektionen in SH pro <?php echo number_format($proEinwohner,  0, ",", "."); ?> Einwohner'
-
+						text: 'SARS-CoV-2 infektionen <?php echo Bundesland::getNameIn($_GET['land']); ?> pro <?php echo number_format($proEinwohner,  0, ",", "."); ?> Einwohner'
 					},
 					tooltips: {
 						mode: 'index',
@@ -376,7 +403,18 @@ $nav = "<p><a href=\"?land=8\">Baden-Württemberg</a>&nbsp;&middot;&nbsp;
 							label: function(tooltipItem, data) {
 								var tooltipValue = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
 								var tooltipLabel = data.datasets[tooltipItem.datasetIndex].label;
-								return tooltipLabel + " pro <?php echo number_format($proEinwohner,  0, ",", "."); ?> Einwohner: " + tooltipValue.toLocaleString();
+								var tooltipResult = tooltipValue.toLocaleString() + ": " + tooltipLabel + " pro <?php echo number_format($proEinwohner,  0, ",", "."); ?> Einwohner";
+
+								// Loop through all datasets to get the actual total of the index
+								var total = 0;
+								for (var i = 0; i < data.datasets.length; i++)
+									total += data.datasets[i].data[tooltipItem.index];
+
+								if (tooltipItem.datasetIndex != data.datasets.length - 1) {
+									return tooltipResult;
+								} else { // .. else, you display the dataset and the total, using an array
+									return [tooltipResult, (Math.round(total * 100) / 100) + ": Summe pro <?php echo number_format($proEinwohner,  0, ",", "."); ?>: "];
+								}
 							}
 						}
 					},
