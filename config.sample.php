@@ -9,4 +9,3 @@ class Config {
 	const USER = "benutzername";
 	const PW = "sehrSicheresPasswort";
 }
-?>

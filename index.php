@@ -35,8 +35,8 @@ class Landkreise
 }
 
 
-$sql = "SELECT SUBSTRING(Landkreis,4) AS Landkreis, SUM(Anzahlgenesen) AS Genesen, SUM(AnzahlFall) AS Infiziert, SUM(AnzahlFall)-SUM(Anzahlgenesen) AS NochInfiziert, SUM(AnzahlTodesfall) AS Tot FROM ".$TABLE." WHERE " . 
-$landkreisSQL . " GROUP BY Landkreis  ORDER BY Landkreis;";
+$sql = "SELECT SUBSTRING(Landkreis,4) AS Landkreis, SUM(Anzahlgenesen) AS Genesen, SUM(AnzahlFall) AS Infiziert, SUM(AnzahlFall)-SUM(Anzahlgenesen) AS NochInfiziert, SUM(AnzahlTodesfall) AS Tot FROM " . $TABLE . " WHERE " .
+	$landkreisSQL . " GROUP BY Landkreis  ORDER BY Landkreis;";
 if ($result = mysqli_query($link, $sql)) {
 	/*echo "<!-- SELECT successfully, Returned rows are: " . mysqli_num_rows($result) . " -->";*/
 } else {
@@ -78,7 +78,7 @@ class DatumSatz
 }
 
 
-$sql = "SELECT SUM(AnzahlFall) AS Infiziert,SUM(AnzahlGenesen) AS Genesen,SUM(AnzahlFall)-SUM(AnzahlGenesen) AS NochInfiziert, SUM(AnzahlTodesfall) AS Tot, Refdatum, DATEDIFF( Refdatum, '2020-01-01') AS DayIndex FROM ".$TABLE." 
+$sql = "SELECT SUM(AnzahlFall) AS Infiziert,SUM(AnzahlGenesen) AS Genesen,SUM(AnzahlFall)-SUM(AnzahlGenesen) AS NochInfiziert, SUM(AnzahlTodesfall) AS Tot, Refdatum, DATEDIFF( Refdatum, '2020-01-01') AS DayIndex FROM " . $TABLE . " 
 WHERE " . $landkreisSQL . " GROUP BY Refdatum ORDER BY Refdatum";
 if ($result = mysqli_query($link, $sql)) {
 	/*	echo "<!-- SELECT successfully, Returned rows are: " . mysqli_num_rows($result) . " -->";*/
@@ -123,9 +123,9 @@ $nachkommaTod = 2;
 
 $sql = "SELECT x.IdLandkreis, SUBSTRING(x.Landkreis,4) AS Landkreis, ROUND((Genesen/Einwohner) * 100000," . $nachkomma . ") AS Genesen,  ROUND((Infiziert/Einwohner) * 100000," . $nachkomma . ") AS Infiziert, ROUND((
 NochInfiziert/Einwohner) * 100000," . $nachkomma . ") AS NochInfiziert,  ROUND((Tot/Einwohner) * 100000," . $nachkommaTod . ") AS Tot FROM Kreise,
-(SELECT ".$TABLE.".IdLandkreis, ".$TABLE.".Landkreis, SUM(Anzahlgenesen ) AS Genesen, SUM(AnzahlFall) AS Infiziert, SUM(AnzahlFall)-SUM(Anzahlgenesen) AS NochInfiziert, SUM(AnzahlTodesfall) AS Tot FROM ".$TABLE." WHERE  " .
-$landkreisSQL
-. " GROUP BY ".$TABLE.".Landkreis, ".$TABLE.".IdLandkreis) AS x WHERE Kreise.Krs = x.IdLandkreis ORDER BY Landkreis;";
+(SELECT " . $TABLE . ".IdLandkreis, " . $TABLE . ".Landkreis, SUM(Anzahlgenesen ) AS Genesen, SUM(AnzahlFall) AS Infiziert, SUM(AnzahlFall)-SUM(Anzahlgenesen) AS NochInfiziert, SUM(AnzahlTodesfall) AS Tot FROM " . $TABLE . " WHERE  " .
+	$landkreisSQL
+	. " GROUP BY " . $TABLE . ".Landkreis, " . $TABLE . ".IdLandkreis) AS x WHERE Kreise.Krs = x.IdLandkreis ORDER BY Landkreis;";
 
 if ($result = mysqli_query($link, $sql)) {
 	/*echo "<!-- SELECT successfully, Returned rows are: " . mysqli_num_rows($result) . " -->";*/

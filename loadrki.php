@@ -1,10 +1,9 @@
 <?php
+
 declare(strict_types=1);
 include_once("config.php");
 define("DOWNLOADURL", "https://github.com/ulikoenig/SARS-COV-2/raw/master/RKI-CSV/Latest-RKI.csv");
 /*$url = 'https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.csv'; */
-
-
 
 $obj = new LoadRKI();
 $obj->update();
@@ -83,7 +82,7 @@ class LoadRKI
         }
         $this->flushBuffer();
 
-        if(unlink ($filename ) ) {
+        if (unlink($filename)) {
             if (DEBUG) echo "<!-- Datei $filename erfolgreich gelöscht -->\n";
         } else {
             if (DEBUG) echo "<!-- Datei $filename konnte nicht gelöscht werden -->\n";
